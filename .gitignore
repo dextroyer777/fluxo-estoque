@@ -1,0 +1,60 @@
+# === Maven (Artefatos de Build) ===
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.restore
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# === Eclipse (Arquivos de Workspace e Metadata) ===
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.project
+.classpath
+.factorypath
+.springBeans
+.recommenders
+
+# === IntelliJ / VS Code (Outras IDEs) ===
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+out/
+
+# === Logs & OS (openSUSE / Linux) ===
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini
+.fuse_hidden*
+.directory
+.Trash-*
+
+# === Vim (Editor no Terminal) ===
+.*.swp
+.*.swo
+Session.vim
+.netrwhist
+
+# === Docker & Database (Persistência Local) ===
+# Ignora pastas de volumes se você criou subpastas para o Postgres/Kafka
+pgdata/
+postgres_data/
+kafka_data/
+
+# === Help & Wrappers ===
+HELP.md
+.mvn/
