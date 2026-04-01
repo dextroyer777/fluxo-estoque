@@ -10,27 +10,25 @@ Este microserviço é responsável por processar os pedidos criados no ecossiste
 * **Hibernate/JPA**: Mapeamento objeto-relacional e gerenciamento de transações.
 * **Lombok**: Redução de código boilerplate.
 
-## 🛡️ Resiliência e Tratamento de Erros
-Um dos grandes diferenciais deste serviço é a robustez no consumo de mensagens:
-* **ErrorHandlingDeserializer**: Configurado para evitar o cenário de "Poison Pill" (mensagens malformadas que travam o consumer). Caso ocorra um erro de deserialização, o erro é logado sem interromper o fluxo da aplicação.
-* **JsonDeserializer Customizado**: Configurado para aceitar pacotes confiáveis e definir um tipo padrão (`OrderEvent`) caso os headers de tipo não estejam presentes.
-* **Transacionalidade**: O uso de `@Transactional` na camada de serviço garante que o registro no banco de dados só seja confirmado se todo o processo ocorrer sem exceções.
+### 🔄 Fluxo de Processamento (Sequence Diagram)
+O diagrama abaixo detalha a jornada da mensagem desde o consumo no Kafka até a persistência transacional no PostgreSQL.
 
-## 🏗️ Estrutura do Projeto
-A estrutura segue as boas práticas de desenvolvimento:
-1. **Infrastructure (Messaging)**: O `OrderConsumer` atua como o listener do tópico `pedidos-criados`.
-2. **Domain (Service)**: O `StockService` encapsula a regra de negócio e orquestra a persistência.
-3. **Domain (Entity/Repository)**: Camada de acesso a dados utilizando Spring Data JPA.
-4. **Test**: Implementação de testes unitários com **JUnit 5** e **Mockito** para validação da lógica de negócio.
+```mermaid
+sequenceDiagram
+    participant K as Apache Kafka (pedidos-criados)
+    participant C as OrderConsumer (Infrastructure)
+    participant S as StockService (Domain)
+    participant DB as PostgreSQL (processamento_estoque)
 
-## ⚙️ Como Executar
-
-### Pré-requisitos
-* **openSUSE Leap 15.6** (Ambiente de desenvolvimento utilizado).
-* **Docker & Docker Compose**.
-* **Maven**.
-
-### Configuração
-O microserviço espera que o Kafka e o Postgres estejam rodando (via Docker Compose do ecossistema):
-```bash
-docker-compose up -d
+    K->>C: Envia Evento (OrderEvent)
+    activate C
+    Note over C: ErrorHandlingDeserializer verifica integridade
+    C->>S: processarReserva(OrderEvent)
+    activate S
+    Note over S: @Transactional Scope
+    S->>S: Executa Lógica de Reserva
+    S->>DB: save(ProcessamentoEstoque)
+    DB-->>S: Confirmação de Persistência
+    S-->>C: Sucesso no Processamento
+    deactivate S
+    deactivate C
